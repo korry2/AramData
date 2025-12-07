@@ -1,0 +1,39 @@
+name: Gunluk Tier List Guncellemesi
+
+on:
+  schedule:
+    # Her gün UTC saatiyle 03:00'da (Türkiye saatiyle 06:00) çalışır
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Elle tetiklemek için buton ekler
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Depoyu Çek (Checkout)
+        uses: actions/checkout@v3
+
+      - name: Python Kur
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Kütüphaneleri Yükle
+        run: |
+          pip install requests
+
+      - name: Robotu Çalıştır (Generate List)
+        run: |
+          python generator.py
+
+      - name: Değişiklikleri Kaydet (Commit & Push)
+        run: |
+          git config --global user.name 'AramBot Action'
+          git config --global user.email 'action@github.com'
+          git add tierlist.json
+          git commit -m "Tier List Güncellendi" || echo "Değişiklik yok"
+          git push
